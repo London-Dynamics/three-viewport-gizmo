@@ -14,7 +14,7 @@
       "require": "./dist/three-viewport-gizmo.umd.cjs"
     }
   },
-  "version": "2.2.0",
+  "version": "2.2.1-ld.0",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
