@@ -78,6 +78,16 @@ jobs:
           PACKAGE_FILE=$(npm pack)
           echo "file=$PACKAGE_FILE" >> "$GITHUB_OUTPUT"
 
+      - name: Configure npm auth for GitHub Packages
+        run: |
+          cat <<EOF > ~/.npmrc
+          @london-dynamics:registry=https://npm.pkg.github.com
+          //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+          always-auth=true
+          EOF
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish scoped package to GitHub Packages
         run: npm publish --registry=https://npm.pkg.github.com
         env:
