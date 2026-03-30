@@ -19,6 +19,9 @@
     "registry": "https://npm.pkg.github.com"
   },
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "types": "./dist/three-viewport-gizmo.d.ts",
   "scripts": {
     "dev": "vite serve --config=vite.live.config.js",
