@@ -1,5 +1,5 @@
 {
-  "name": "three-viewport-gizmo",
+  "name": "@london-dynamics/three-viewport-gizmo",
   "description": "Three Viewport Gizmo is a highly customizable standalone interactive three.js view helper controls, allowing effortless integration with popular camera libraries.",
   "author": "Fennec",
   "license": "MIT",
@@ -15,6 +15,9 @@
     }
   },
   "version": "2.2.0",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "type": "module",
   "types": "./dist/three-viewport-gizmo.d.ts",
   "scripts": {
@@ -54,10 +57,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Fennec-hub/three-viewport-gizmo.git"
+    "url": "git+https://github.com/london-dynamics/three-viewport-gizmo.git"
   },
   "bugs": {
-    "url": "https://github.com/Fennec-hub/three-viewport-gizmo/issues"
+    "url": "https://github.com/london-dynamics/three-viewport-gizmo/issues"
   },
-  "homepage": "https://github.com/Fennec-hub/three-viewport-gizmo#readme"
+  "homepage": "https://github.com/london-dynamics/three-viewport-gizmo#readme"
 }
