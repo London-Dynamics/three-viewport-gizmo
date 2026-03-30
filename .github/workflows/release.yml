@@ -1,0 +1,97 @@
+name: Release fork package
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Version bump type"
+        type: choice
+        required: true
+        default: prerelease
+        options:
+          - prerelease
+          - patch
+          - minor
+          - major
+      preid:
+        description: "Prerelease identifier (used for prerelease only)"
+        type: string
+        required: false
+        default: ld
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate release branch
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "release/ld" ]; then
+            echo "This workflow may only run from release/ld. Current branch: ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: "@london-dynamics"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: bump
+        run: |
+          RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+          PREID="${{ github.event.inputs.preid }}"
+
+          if [ "$RELEASE_TYPE" = "prerelease" ]; then
+            VERSION=$(npm version prerelease --preid "$PREID" -m "chore(release): %s [skip ci]")
+          else
+            VERSION=$(npm version "$RELEASE_TYPE" -m "chore(release): %s [skip ci]")
+          fi
+
+          echo "version=${VERSION#v}" >> "$GITHUB_OUTPUT"
+          echo "tag=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Pack tarball
+        id: pack
+        run: |
+          PACKAGE_FILE=$(npm pack)
+          echo "file=$PACKAGE_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish scoped package to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push release commit and tag
+        run: git push origin HEAD --follow-tags
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.tag }}
+          name: ${{ steps.bump.outputs.tag }}
+          prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
+          files: ${{ steps.pack.outputs.file }}
